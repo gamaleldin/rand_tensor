@@ -2,6 +2,7 @@ from itertools import chain
 import numpy as np
 from numpy import random as nprnd
 from scipy import linalg as sciLA
+from utils import utils
 
 
 
