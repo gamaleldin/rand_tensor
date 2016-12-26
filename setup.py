@@ -8,4 +8,9 @@ setup(name='randtensor',
       author_email='gamaleldin.elsayed@gmail.com',
       license='General Public License',
       packages=['randtensor'],
+      install_requires=[
+                        'numpy',
+                        'scipy',
+                        'itertools',
+                        ],
       zip_safe=False)
