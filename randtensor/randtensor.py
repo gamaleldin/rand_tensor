@@ -2,11 +2,10 @@ from itertools import chain
 import numpy as np
 from numpy import random as nprnd
 from scipy import linalg as sciLA
-from utils import utils
 
 
 
-class randTensors:
+class tensor:
     def __init__(self, sizes):
         self.sizes = sizes;
         self.marginalCov = [];
