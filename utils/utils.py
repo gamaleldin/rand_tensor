@@ -1,18 +1,23 @@
 import numpy as np
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#% This function evaluates the sum of tensor at specific dimensions
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#% Inputs:
-#%       - A: is the input n-dimesnional tensor
-#%       - sumDim: the dimensions to sum over.
-#% Outputs:
-#%       - sumA: an n-dimensional tensor of the sum of tensor A at the
-#%       specified dimensions. The dimensions specified by sumDim will be of
-#%       size 1.
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'''
+#___________________________________________________________________________
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This function evaluates the efficient multiplication of matrix (A) that
+% has kronecker product structure A = kron(An, ...., A2, A1) by a vector 
+% (b). This is the algorithm one from:
+% Scaling multidimensional inference for structured Gaussian processes
+% E Gilboa, Y Saatçi, JP Cunningham - Pattern Analysis and Machine 
+% Intelligence, IEEE ?, 2015
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Inputs:
+%       - As: is a list where each element contains the matrices
+%       A1,A2,...An
+%       - b: a vector.
+% Outputs:
+%       - x: is the result of matrix vector product between A and b
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'''
 def kron_mvprod(As, b):
     x = b
     numDraws = b[0, :].size
@@ -27,20 +32,20 @@ def kron_mvprod(As, b):
     x = np.reshape(x, tuple([numDraws, CTN]), order = 'F').T
     return x
 
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#% This function evaluates the sum of tensor at specific dimensions
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#% Inputs:
-#%       - A: is the input n-dimesnional tensor
-#%       - sumDim: the dimensions to sum over.
-#% Outputs:
-#%       - sumA: an n-dimensional tensor of the sum of tensor A at the
-#%       specified dimensions. The dimensions specified by sumDim will be of
-#%       size 1.
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#__________________________________________________________________________
+'''
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This function evaluates the efficient evaluation of kronecker (tensor) 
+% sums of diagonal matrices.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Inputs:
+%       - Ds: is a list where each element contains the diagonal elements
+%       of each matrix.
+% Outputs:
+%       - kronSumLs: is the result of Dn \kronsum Dn-1 .....\kronsum D1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'''
 def diagKronSum(Ds):
     nmodes = len(Ds)
     kronSumDs = np.zeros(1)
@@ -48,43 +53,49 @@ def diagKronSum(Ds):
         kronSumDs = np.add(np.outer(kronSumDs, np.ones(len(Ds[i]))),np.outer(np.ones(len(kronSumDs)),Ds[i]))
         kronSumDs = np.hstack(kronSumDs.T)
     return kronSumDs
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#% This function evaluates the sum of tensor at specific dimensions
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#% Inputs:
-#%       - A: is the input n-dimesnional tensor
-#%       - sumDim: the dimensions to sum over.
-#% Outputs:
-#%       - sumA: an n-dimensional tensor of the sum of tensor A at the
-#%       specified dimensions. The dimensions specified by sumDim will be of
-#%       size 1.
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+#__________________________________________________________________________
+'''
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This function evaluates the sum of tensor at specific dimensions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Inputs:
+%       - A: is the input n-dimesnional tensor
+%       - sumDim: the dimensions to sum over.
+% Outputs:
+%       - sumA: an n-dimensional tensor of the sum of tensor A at the 
+%       specified dimensions. The dimensions specified by sumDim will be of
+%       size 1.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'''
 def sumTensor(T, sumDim):
     sumT = T
     for i in range(len(sumDim)):
         sumT = np.expand_dims(np.sum(sumT, sumDim[i]), axis = sumDim[i])
     return sumT
 
-
-
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#% This function evaluates the sum of tensor at specific dimensions
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#% Inputs:
-#%       - A: is the input n-dimesnional tensor
-#%       - sumDim: the dimensions to sum over.
-#% Outputs:
-#%       - sumA: an n-dimensional tensor of the sum of tensor A at the
-#%       specified dimensions. The dimensions specified by sumDim will be of
-#%       size 1.
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#__________________________________________________________________________
+'''
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This function evaluates the log transformed objective function of the
+% maximum entropy covariance eigenvalues 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Inputs:
+%       - logL: is the vector of the stacked log transformed 
+%         eigenvalues of the lagrangian matrices
+%       - logEigValues: list with each element containing the vector of
+%         log transformed eigenvalues of the specified marginal covariance 
+%         matrices.
+% Outputs:
+%       - f: is the log transformed objective cost function evaluated at 
+%         the input vector logL.
+%       - gradf_logL: is the gradient of the log transformed objective cost
+%         function evaluated at the input vector logL. This gradient is
+%         taken with respect of the log tramsformed latent of the
+%         lagrangian matrices eigenvalues (logL).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'''
 def logObjectiveMaxEntropyTensor(logL, params):
     Lagrangians = []
     for x in params.tensorIxs:
@@ -124,21 +135,26 @@ def logObjectiveMaxEntropyTensor(logL, params):
     gradf_logL = gradf_logL/params.normalizeTerm  
     ############ return ###########
     return f, gradf_logL
+#___________________________________________________________________________
 
-    
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#% This function evaluates the sum of tensor at specific dimensions
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#% Inputs:
-#%       - A: is the input n-dimesnional tensor
-#%       - sumDim: the dimensions to sum over.
-#% Outputs:
-#%       - sumA: an n-dimensional tensor of the sum of tensor A at the
-#%       specified dimensions. The dimensions specified by sumDim will be of
-#%       size 1.
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%      
+'''
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This function solves for the eigenvalues of the covariance matrix of the
+% maximum entropy distribution with specified eigenvalues of the marginal 
+% covariance matrices
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Inputs:
+%       - eigValues: list with each element containing the vector of
+%         eigenvalues of the specified marginal covariance matrices.
+%       - maxIter: maximum number of allowed iterations.
+%       - figFlg: if true a figure will be generated to display optimization summary.
+% Outputs:
+%       - Lagrangians: is the list eigenvalues of the largrangian
+%                multipliers of the optimization program
+%       - cost: final cost value
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'''    
 def optMaxEntropy(eigValues, maxIter, figFlg):
 #  if the marginal covariances are low rank then the number of variables 
 #  that we solve for are less. If full rank the number of variables that we 
