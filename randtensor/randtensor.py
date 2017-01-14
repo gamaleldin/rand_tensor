@@ -6,6 +6,10 @@ from scipy import linalg as sciLA
 
 
 class tensor:
+    '''
+    tensor class that takes an input, which is the size of different tensor modes
+    
+    '''
     def __init__(self, sizes):
         self.sizes = sizes;
         self.marginalCov = [];
@@ -41,7 +45,9 @@ class tensor:
             margEigValues += [s];
             margEigVectors += [Q];
         return margEigValues, margEigVectors
-    
+    '''
+    class function that fits maximum entropy distribution with covariances specified in margCovs list
+    '''
     def fitMaxEntropy(self, margCovs):
         margEigValues, margEigVectors = self.margEig(margCovs);
         maxIter = 1000;
@@ -53,7 +59,11 @@ class tensor:
         self.margCovs = margCovs;
         self.margEigValues = margEigValues;
         self.margEigVectors = margEigVectors;
-        
+    
+    '''
+    class function that samples tensors (number of tensors is specified as an input) 
+    with the marginal covariance constraints.
+    '''
     def sampleTensors(self, nsamples):
         vecTensors = np.zeros([np.prod(self.sizes), nsamples]);
         for i in range(nsamples):
@@ -67,6 +77,9 @@ class tensor:
         _ = self.samplingError(tensors)
         return tensors
     
+    '''
+    Compute the marginal covariances empirically a list of tensors specified as an input
+    '''
     def empiricalMargCovs(self, tensors):
         nsamples = len(tensors)
         M =  self.empiricalMean(tensors)
@@ -88,6 +101,10 @@ class tensor:
             estMargCov[i] = (estMargCov[i])
         return estMargCov
     
+
+    '''
+    Compute the mean tensor from a list of tensors specified as an input
+    '''
     def empiricalMean(self, tensors):
         nsamples = len(tensors);
         M = tensors[0]/nsamples
@@ -95,6 +112,11 @@ class tensor:
             M = M+tensors[i+1]/nsamples
         return M
     
+    '''
+    Compute the sampling error, defined as the square difference between the 
+    class marginal covariances and the empirical estimated from a list of tensors 
+    specified as an input
+    '''
     def samplingError(self, tensors):
         nsamples = len(tensors);
         estMargCov = self.empiricalMargCovs(tensors);
