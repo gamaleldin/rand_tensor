@@ -12,7 +12,6 @@ class randtensor:
     '''
     def __init__(self, sizes):
         self.sizes = sizes;
-        self.marginalCov = [];
         self.nmodes = len(sizes);
         self.margCovs = [];                            # marginal Covariances of the distribution
         self.margEigVectors = [];                        # eigenvectors of the marginal Covariances of the distribution
@@ -72,9 +71,7 @@ class randtensor:
         vecTensors = np.real(kron_mvprod(self.margEigVectors, vecTensors))
         tensors = []
         for i in range(nsamples):
-            tensors += [np.reshape(vecTensors[:,i], tuple(self.sizes), order = 'F')]
-        
-        _ = self.samplingError(tensors)
+            tensors += [np.reshape(vecTensors[:,i], tuple(self.sizes), order = 'F')]        
         return tensors
     
     '''
@@ -92,7 +89,6 @@ class randtensor:
 
         for j in range(nsamples):
             tensor = tensors[j]-M
-            marginalCovs = []
             for i in allDim:
                 niSet = list(set(allDim) - set([i]))
                 z = np.reshape(np.transpose(tensor, list(chain.from_iterable([[i], niSet]))), tuple([sizes[i], np.prod(sizes[niSet])]), order = 'F')
@@ -125,3 +121,4 @@ class randtensor:
             error += [(sciLA.norm(estMargCov[i]-self.margCovs[i], 'fro')/sciLA.norm(self.margCovs[i], 'fro'))**2*100];
             print "Error in estimated marginal covariance of mode %d, empirically estimated from samples, is %.2f %%" \
             %(i, error[i])
+        return error
