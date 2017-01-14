@@ -5,7 +5,7 @@ from scipy import linalg as sciLA
 
 
 
-class tensor:
+class randtensor:
     '''
     tensor class that takes an input, which is the size of different tensor modes
     
