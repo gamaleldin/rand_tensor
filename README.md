@@ -42,11 +42,11 @@ This code package generates random tensors with user specified marginal means an
 The BibTeX citations for the primary papers used in this project are:
 
 @article{elsayed,
-  title={Structure in Neural Population Responses: Interesting or Epiphenomenal?},
-  author={Elsayed et al.},
-  journal={},
-  volume={},
-  year={}
+title={Structure in neural population recordings: an expected byproduct of simpler phenomena?},
+author={Gamaleldin Elsayed},
+journal={Nature Neuroscience},
+volume={},
+year={}
 }
 
 ====================================================================
